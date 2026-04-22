@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toplink Solar Pro-Calc</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f9; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { color: #2c3e50; font-size: 1.2rem; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background-color: #27ae60; color: white; border: none; border-radius: 4px; margin-top: 20px; font-size: 1rem; cursor: pointer; }
+        #results { background: #e8f8f5; border-left: 5px solid #27ae60; }
+        .result-item { margin: 10px 0; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>System Requirements</h2>
+        <label>Total Load (Watts):</label>
+        <input type="number" id="load" placeholder="e.g. 3000">
+        
+        <label>Backup Hours Required:</label>
+        <input type="number" id="hours" placeholder="e.g. 5">
+        
+        <label>Panel Wattage (Jinko):</label>
+        <select id="panelWatts">
+            <option value="580">580W Bifacial</option>
+            <option value="450">450W Mono</option>
+            <option value="600">600W N-Type</option>
+        </select>
+    </div>
+
+    <button onclick="calculate()">Generate System Estimate</button>
+
+    <div id="results" class="card" style="display:none;">
+        <h2>System Recommendation</h2>
+        <div id="output" class="result-item"></div>
+    </div>
+
+    <script>
+        function calculate() {
+            const load = document.getElementById('load').value;
+            const hours = document.getElementById('hours').value;
+            const panelW = document.getElementById('panelWatts').value;
+
+            if (!load || !hours) {
+                alert("Please enter load and hours");
+                return;
+            }
+
+            // Calculations
+            const energyNeeded = load * hours; // Watt-hours
+            const batteryCount = Math.ceil(energyNeeded / (48 * 100)); // Assuming 48V 100Ah modules
+            const panelsNeeded = Math.ceil((load * 1.2) / panelW); // Simple array sizing for daytime load
+
+            const output = document.getElementById('output');
+            output.innerHTML = `
+                <strong>Estimated Panels:</strong> ${panelsNeeded} x ${panelW}W<br>
+                <strong>Battery Bank:</strong> ${batteryCount} x 48V 100Ah LiFePO4<br>
+                <strong>Inverter Suggestion:</strong> ${load > 5000 ? '8kW Deye/Solis' : '5kW Deye/Solis'}<br><br>
+                <small>*Note: This uses a 1.2 safety factor for panel sizing.</small>
+            `;
+            document.getElementById('results').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
